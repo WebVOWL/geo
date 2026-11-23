@@ -439,7 +439,7 @@ where
     }
 }
 
-struct CentroidOperation<T: GeoFloat>(Option<WeightedCentroid<T>>);
+pub struct CentroidOperation<T: GeoFloat>(Option<WeightedCentroid<T>>);
 impl<T: GeoFloat> CentroidOperation<T> {
     fn new() -> Self {
         CentroidOperation(None)
