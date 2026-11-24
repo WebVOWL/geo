@@ -439,30 +439,30 @@ where
     }
 }
 
-pub struct CentroidOperation<T: GeoFloat>(Option<WeightedCentroid<T>>);
+pub struct CentroidOperation<T: GeoFloat>(pub Option<WeightedCentroid<T>>);
 impl<T: GeoFloat> CentroidOperation<T> {
-    fn new() -> Self {
+    pub fn new() -> Self {
         CentroidOperation(None)
     }
 
-    fn centroid(&self) -> Option<Point<T>> {
+    pub fn centroid(&self) -> Option<Point<T>> {
         self.0.as_ref().map(|weighted_centroid| {
             Point::from(weighted_centroid.accumulated / weighted_centroid.weight)
         })
     }
 
-    fn centroid_dimensions(&self) -> Dimensions {
+    pub fn centroid_dimensions(&self) -> Dimensions {
         self.0
             .as_ref()
             .map(|weighted_centroid| weighted_centroid.dimensions)
             .unwrap_or(Empty)
     }
 
-    fn add_coord(&mut self, coord: Coord<T>) {
+    pub fn add_coord(&mut self, coord: Coord<T>) {
         self.add_centroid(ZeroDimensional, coord, T::one());
     }
 
-    fn add_line(&mut self, line: &Line<T>) {
+    pub fn add_line(&mut self, line: &Line<T>) {
         match line.dimensions() {
             ZeroDimensional => self.add_coord(line.start),
             OneDimensional => {
@@ -472,7 +472,7 @@ impl<T: GeoFloat> CentroidOperation<T> {
         }
     }
 
-    fn add_line_string(&mut self, line_string: &LineString<T>) {
+    pub fn add_line_string(&mut self, line_string: &LineString<T>) {
         if self.centroid_dimensions() > OneDimensional {
             return;
         }
@@ -487,7 +487,7 @@ impl<T: GeoFloat> CentroidOperation<T> {
         }
     }
 
-    fn add_multi_line_string(&mut self, multi_line_string: &MultiLineString<T>) {
+    pub fn add_multi_line_string(&mut self, multi_line_string: &MultiLineString<T>) {
         if self.centroid_dimensions() > OneDimensional {
             return;
         }
@@ -497,7 +497,7 @@ impl<T: GeoFloat> CentroidOperation<T> {
         }
     }
 
-    fn add_polygon(&mut self, polygon: &Polygon<T>) {
+    pub fn add_polygon(&mut self, polygon: &Polygon<T>) {
         // Polygons which are completely covered by their interior rings have zero area, and
         // represent a unique degeneracy into a line_string which cannot be handled by accumulating
         // directly into `self`. Instead, we perform a sub-operation, inspect the result, and only
@@ -525,7 +525,7 @@ impl<T: GeoFloat> CentroidOperation<T> {
         }
     }
 
-    fn add_multi_point(&mut self, multi_point: &MultiPoint<T>) {
+    pub fn add_multi_point(&mut self, multi_point: &MultiPoint<T>) {
         if self.centroid_dimensions() > ZeroDimensional {
             return;
         }
@@ -535,19 +535,19 @@ impl<T: GeoFloat> CentroidOperation<T> {
         }
     }
 
-    fn add_multi_polygon(&mut self, multi_polygon: &MultiPolygon<T>) {
+    pub fn add_multi_polygon(&mut self, multi_polygon: &MultiPolygon<T>) {
         for element in &multi_polygon.0 {
             self.add_polygon(element);
         }
     }
 
-    fn add_geometry_collection(&mut self, geometry_collection: &GeometryCollection<T>) {
+   pub  fn add_geometry_collection(&mut self, geometry_collection: &GeometryCollection<T>) {
         for element in &geometry_collection.0 {
             self.add_geometry(element);
         }
     }
 
-    fn add_rect(&mut self, rect: &Rect<T>) {
+    pub fn add_rect(&mut self, rect: &Rect<T>) {
         match rect.dimensions() {
             ZeroDimensional => self.add_coord(rect.min()),
             OneDimensional => {
@@ -564,7 +564,7 @@ impl<T: GeoFloat> CentroidOperation<T> {
         }
     }
 
-    fn add_triangle(&mut self, triangle: &Triangle<T>) {
+    pub fn add_triangle(&mut self, triangle: &Triangle<T>) {
         match triangle.dimensions() {
             ZeroDimensional => self.add_coord(triangle.v1()),
             OneDimensional => {
@@ -586,7 +586,7 @@ impl<T: GeoFloat> CentroidOperation<T> {
         }
     }
 
-    fn add_geometry(&mut self, geometry: &Geometry<T>) {
+    pub fn add_geometry(&mut self, geometry: &Geometry<T>) {
         match geometry {
             Geometry::Point(g) => self.add_coord(g.0),
             Geometry::Line(g) => self.add_line(g),
@@ -601,7 +601,7 @@ impl<T: GeoFloat> CentroidOperation<T> {
         }
     }
 
-    fn add_ring(&mut self, ring: &LineString<T>) {
+    pub fn add_ring(&mut self, ring: &LineString<T>) {
         debug_assert!(ring.is_closed());
 
         let area = get_linestring_area(ring);
@@ -632,7 +632,7 @@ impl<T: GeoFloat> CentroidOperation<T> {
         self.add_centroid(TwoDimensional, centroid, weight);
     }
 
-    fn add_centroid(&mut self, dimensions: Dimensions, centroid: Coord<T>, weight: T) {
+    pub fn add_centroid(&mut self, dimensions: Dimensions, centroid: Coord<T>, weight: T) {
         let weighted_centroid = WeightedCentroid {
             dimensions,
             weight,
@@ -641,7 +641,7 @@ impl<T: GeoFloat> CentroidOperation<T> {
         self.add_weighted_centroid(weighted_centroid);
     }
 
-    fn add_weighted_centroid(&mut self, other: WeightedCentroid<T>) {
+    pub fn add_weighted_centroid(&mut self, other: WeightedCentroid<T>) {
         match self.0.as_mut() {
             Some(centroid) => centroid.add_assign(other),
             None => self.0 = Some(other),
