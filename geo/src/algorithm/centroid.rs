@@ -650,9 +650,9 @@ impl<T: GeoFloat> CentroidOperation<T> {
 }
 
 // Aggregated state for accumulating the centroid of a geometry or collection of geometries.
-struct WeightedCentroid<T: GeoFloat> {
-    weight: T,
-    accumulated: Coord<T>,
+pub struct WeightedCentroid<T: GeoFloat> {
+    pub weight: T,
+    pub accumulated: Coord<T>,
     /// Collections of Geometries can have different dimensionality. Centroids must be considered
     /// separately by dimensionality.
     ///
@@ -663,11 +663,11 @@ struct WeightedCentroid<T: GeoFloat> {
     /// containing a 2-D Polygon.
     ///
     /// So, when accumulating a centroid, we must track the dimensionality of the centroid
-    dimensions: Dimensions,
+    pub dimensions: Dimensions,
 }
 
 impl<T: GeoFloat> WeightedCentroid<T> {
-    fn add_assign(&mut self, b: WeightedCentroid<T>) {
+    pub fn add_assign(&mut self, b: WeightedCentroid<T>) {
         match self.dimensions.cmp(&b.dimensions) {
             Ordering::Less => *self = b,
             Ordering::Greater => {}
@@ -678,7 +678,7 @@ impl<T: GeoFloat> WeightedCentroid<T> {
         }
     }
 
-    fn sub_assign(&mut self, b: WeightedCentroid<T>) {
+    pub fn sub_assign(&mut self, b: WeightedCentroid<T>) {
         match self.dimensions.cmp(&b.dimensions) {
             Ordering::Less => *self = b,
             Ordering::Greater => {}
